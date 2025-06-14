@@ -1,7 +1,6 @@
 import * as FileSystem from 'expo-file-system';
-
-// ⚠️ Replace this with your actual AssemblyAI key
-const API_KEY = '9a771f7606d7467b8d70f91f8015f3bf';
+import { ASSEMBLY_API_KEY } from '@env';
+import { toByteArray } from 'base64-js';
 
 export async function uploadAndTranscribe(uri: string) {
   try {
@@ -9,12 +8,15 @@ export async function uploadAndTranscribe(uri: string) {
       encoding: FileSystem.EncodingType.Base64,
     });
 
+    const binaryAudio = toByteArray(fileBase64);
+
     const uploadRes = await fetch('https://api.assemblyai.com/v2/upload', {
       method: 'POST',
       headers: {
-        authorization: API_KEY,
+        authorization: ASSEMBLY_API_KEY,
+        'Content-Type': 'application/octet-stream',
       },
-      body: Buffer.from(fileBase64, 'base64'),
+      body: binaryAudio,
     });
 
     const { upload_url } = await uploadRes.json();
@@ -23,7 +25,7 @@ export async function uploadAndTranscribe(uri: string) {
     const transcribeRes = await fetch('https://api.assemblyai.com/v2/transcript', {
       method: 'POST',
       headers: {
-        authorization: API_KEY,
+        authorization: ASSEMBLY_API_KEY,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -37,27 +39,24 @@ export async function uploadAndTranscribe(uri: string) {
     const { id } = await transcribeRes.json();
     console.log('🧠 Transcript job ID:', id);
 
-    // Poll for status
-    let status = '';
     let data;
-    do {
-      await new Promise((r) => setTimeout(r, 3000));
-      const check = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
-        headers: { authorization: API_KEY },
-      });
-      data = await check.json();
-      status = data.status;
-      console.log('⌛ Status:', status);
-    } while (status === 'queued' || status === 'processing');
+    while (true) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 3000));
 
-    if (status === 'completed') {
-      return data;
-    } else {
-      console.error('Transcript error:', data.error);
-      return null;
+      const check = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, {
+        headers: { authorization: ASSEMBLY_API_KEY },
+      });
+
+      data = await check.json();
+      console.log('⌛ Status:', data.status);
+
+      if (data.status === 'completed') break;
+      if (data.status === 'error') throw new Error(data.error);
     }
-  } catch (e) {
-    console.error('AssemblyAI error:', e);
+
+    return data;
+  } catch (error) {
+    console.error('❌ AssemblyAI error:', error);
     return null;
   }
 }

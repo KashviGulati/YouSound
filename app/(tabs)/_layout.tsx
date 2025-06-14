@@ -2,7 +2,7 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Buffer } from 'buffer';
-global.Buffer = Buffer;
+
 
 
 export default function TabsLayout() {

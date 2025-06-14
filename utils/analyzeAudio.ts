@@ -1,6 +1,9 @@
 import * as FileSystem from 'expo-file-system';
 
-const ASSEMBLY_API_KEY = '9a771f7606d7467b8d70f91f8015f3bf';
+import Constants from 'expo-constants';
+
+const ASSEMBLY_API_KEY = Constants.expoConfig?.extra?.assemblyApiKey;
+
 
 export async function analyzeAudio(uri: string) {
   try {
@@ -48,7 +51,8 @@ export async function analyzeAudio(uri: string) {
         throw new Error(data.error);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
+     await new Promise<void>(resolve => setTimeout(resolve, 2000));
+
     }
 
     return { text: transcript.text };
