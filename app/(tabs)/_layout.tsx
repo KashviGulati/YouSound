@@ -1,9 +1,6 @@
-// app/tabs/layout.tsx
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Buffer } from 'buffer';
-
-
+import { Buffer } from 'buffer'; // (optional unless needed for something else)
 
 export default function TabsLayout() {
   return (
@@ -23,6 +20,15 @@ export default function TabsLayout() {
           title: 'Record',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="mic-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="interview"
+        options={{
+          title: 'AI Interview',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
           ),
         }}
       />

@@ -5,9 +5,16 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🎙️ Welcome to YouSound!</Text>
+
       <Link href="/record" asChild>
         <Button title="Go to Recorder" />
       </Link>
+
+      <View style={{ marginTop: 20 }}>
+        <Link href="/interview" asChild>
+          <Button title="AI Interview Assistant" />
+        </Link>
+      </View>
     </View>
   );
 }
